@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import io from 'socket.io-client'
+import API_BASE_URL from '../config/api'
 
 const SocketContext = createContext()
 
@@ -10,10 +11,24 @@ export const useSocket = () => {
 export const SocketProvider = ({ children, user }) => {
   const [socket, setSocket] = useState(null)
   const [onlineUsers, setOnlineUsers] = useState(new Set())
+  const [usePolling, setUsePolling] = useState(false)
+  const [isConnected, setIsConnected] = useState(false)
 
   useEffect(() => {
     if (user) {
-      const newSocket = io('http://localhost:5000', {
+      // Check if we're in production (Vercel)
+      const isProduction = import.meta.env.PROD
+      
+      if (isProduction) {
+        // Use polling mode in production
+        console.log('🔄 Using polling mode for Vercel deployment')
+        setUsePolling(true)
+        setIsConnected(true)
+        return
+      }
+
+      // Use Socket.IO in development
+      const newSocket = io(API_BASE_URL || 'http://localhost:5000', {
         transports: ['websocket'],
         reconnection: true,
         reconnectionDelay: 1000,
@@ -22,6 +37,7 @@ export const SocketProvider = ({ children, user }) => {
 
       newSocket.on('connect', () => {
         console.log('✅ Connected to socket server')
+        setIsConnected(true)
         newSocket.emit('user-online', user.registrationNumber)
       })
 
@@ -39,10 +55,15 @@ export const SocketProvider = ({ children, user }) => {
 
       newSocket.on('disconnect', () => {
         console.log('❌ Disconnected from socket server')
+        setIsConnected(false)
       })
 
       newSocket.on('connect_error', (error) => {
         console.error('Socket connection error:', error)
+        // Fallback to polling
+        console.log('⚠️ Falling back to polling mode')
+        setUsePolling(true)
+        setIsConnected(true)
       })
 
       setSocket(newSocket)
@@ -54,7 +75,12 @@ export const SocketProvider = ({ children, user }) => {
   }, [user])
 
   return (
-    <SocketContext.Provider value={{ socket, onlineUsers }}>
+    <SocketContext.Provider value={{ 
+      socket, 
+      onlineUsers, 
+      usePolling, 
+      isConnected 
+    }}>
       {children}
     </SocketContext.Provider>
   )
