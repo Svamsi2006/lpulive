@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import AdminPinModal from './AdminPinModal'
 import { ADMIN_CONFIG, isAdmin } from '../config/admin'
+import { API_ENDPOINTS } from '../config/api'
 import './Login.css'
 
 function Login({ onLogin }) {
@@ -17,7 +18,7 @@ function Login({ onLogin }) {
     setLoading(true)
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
