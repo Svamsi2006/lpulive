@@ -7,8 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "server": "node server/server.js",
-    "start": "concurrently \"npm run server\" \"npm run dev\""
+    "server": "node server/server-simple.js",
+    "start": "concurrently \"npm run server\" \"npm run dev\"",
+    "vercel-build": "vite build"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
