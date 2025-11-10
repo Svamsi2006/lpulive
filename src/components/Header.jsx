@@ -28,7 +28,7 @@ function Header({ user, onLogout, theme, toggleTheme, activeView, setActiveView 
 
     try {
       const token = localStorage.getItem('lpuLiveToken')
-      const response = await fetch('http://localhost:5000/api/auth/change-password', {
+      const response = await fetch('${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/auth/change-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

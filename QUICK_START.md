@@ -3,7 +3,7 @@
 ## 🚀 Both Servers Are Running!
 
 ### Current Status
-✅ **Backend Server**: Running on `http://localhost:5000`
+✅ **Backend Server**: Running on `${import.meta.env.PROD ? '' : 'http://localhost:5000'}`
 ✅ **Frontend Server**: Running on `http://localhost:3000` or `http://localhost:3001`
 ✅ **Authentication**: Working with JWT tokens
 ✅ **Storage**: Using in-memory storage (MongoDB fallback)
@@ -69,7 +69,7 @@ Here are some registration numbers you can use for testing:
 
 ### Backend Not Responding
 - Check if the backend server window is still open
-- Look for the message: "✅ Server running on http://localhost:5000"
+- Look for the message: "✅ Server running on ${import.meta.env.PROD ? '' : 'http://localhost:5000'}"
 - If not running, execute: `node server/server.js`
 
 ### Frontend Not Loading

@@ -81,7 +81,7 @@ npm run dev
 
 ## 🌐 Access Points
 - **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:5000
+- **Backend API**: ${import.meta.env.PROD ? '' : 'http://localhost:5000'}
 
 ## 📡 API Endpoints
 

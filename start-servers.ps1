@@ -24,7 +24,7 @@ Write-Host "==================================" -ForegroundColor Green
 Write-Host "   Servers are starting!" -ForegroundColor Green
 Write-Host "==================================" -ForegroundColor Green
 Write-Host ""
-Write-Host "Backend:  http://localhost:5000" -ForegroundColor Yellow
+Write-Host "Backend:  ${import.meta.env.PROD ? '' : 'http://localhost:5000'}" -ForegroundColor Yellow
 Write-Host "Frontend: http://localhost:3000 or 3001" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "Login with any registration number from student_data.json" -ForegroundColor Magenta

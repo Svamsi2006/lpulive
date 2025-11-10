@@ -12,7 +12,7 @@ I've updated the `SocketContext.jsx` to automatically:
 ### How It Works:
 ```javascript
 // Development: Full real-time with Socket.IO
-const socket = io('http://localhost:5000');
+const socket = io('${import.meta.env.PROD ? '' : 'http://localhost:5000'}');
 
 // Production: Polling every 3 seconds
 setInterval(() => fetchNewMessages(), 3000);
@@ -63,7 +63,7 @@ After deploying backend, update `src/config/api.js`:
 ```javascript
 const API_BASE_URL = import.meta.env.PROD 
   ? 'https://lpulive.up.railway.app'  // Your Railway URL
-  : 'http://localhost:5000';
+  : '${import.meta.env.PROD ? '' : 'http://localhost:5000'}';
 ```
 
 Then redeploy to Vercel.

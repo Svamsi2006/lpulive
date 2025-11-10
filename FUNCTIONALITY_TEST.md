@@ -1,7 +1,7 @@
 # LPU Live - Functionality Test Checklist
 
 ## 🚀 Server Status
-- [x] Backend running on http://localhost:5000
+- [x] Backend running on ${import.meta.env.PROD ? '' : 'http://localhost:5000'}
 - [x] Frontend running on http://localhost:3000
 - [x] 8580 students loaded
 - [x] Socket.IO ready

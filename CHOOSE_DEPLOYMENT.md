@@ -78,7 +78,7 @@ Edit `src/config/api.js`:
 ```javascript
 const API_BASE_URL = import.meta.env.PROD 
   ? 'https://lpulive-production.up.railway.app'  // Your Railway URL
-  : 'http://localhost:5000';
+  : '${import.meta.env.PROD ? '' : 'http://localhost:5000'}';
 ```
 
 Commit and push:

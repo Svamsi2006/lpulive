@@ -140,7 +140,7 @@ node server/server-simple.js
 
 You'll see:
 ```
-✅ Server running on http://localhost:5000
+✅ Server running on ${import.meta.env.PROD ? '' : 'http://localhost:5000'}
 📁 Using CSV file storage in: C:\Users\vamsi\Desktop\lpulive\data
 🎯 Ready to accept connections
 ```

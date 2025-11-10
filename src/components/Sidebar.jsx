@@ -50,7 +50,7 @@ function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, se
         return
       }
       
-      const response = await fetch('http://localhost:5000/api/chats', {
+      const response = await fetch('${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/chats', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -77,7 +77,7 @@ function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, se
         return
       }
       
-      const response = await fetch('http://localhost:5000/api/groups', {
+      const response = await fetch('${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/groups', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -105,8 +105,8 @@ function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, se
       // Determine endpoint based on current view
       const isUniversityGroup = activeView === 'university-groups';
       const endpoint = isUniversityGroup 
-        ? 'http://localhost:5000/api/groups/university/create'
-        : 'http://localhost:5000/api/groups/create';
+        ? '${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/groups/university/create'
+        : '${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/groups/create';
       
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -150,7 +150,7 @@ function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, se
         return
       }
       
-      const response = await fetch('http://localhost:5000/api/groups/university', {
+      const response = await fetch('${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/groups/university', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -174,7 +174,7 @@ function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, se
         return
       }
       
-      const response = await fetch('http://localhost:5000/api/announcements', {
+      const response = await fetch('${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/announcements', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -195,7 +195,7 @@ function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, se
     setIsPosting(true)
     try {
       const token = localStorage.getItem('lpuLiveToken')
-      const response = await fetch('http://localhost:5000/api/announcements', {
+      const response = await fetch('${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/announcements', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -236,7 +236,7 @@ function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, se
       }
       
       // Get user data
-      const userResponse = await fetch(`http://localhost:5000/api/users/${regNumberInput}`, {
+      const userResponse = await fetch(`${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/users/${regNumberInput}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -249,7 +249,7 @@ function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, se
         const currentUser = JSON.parse(atob(token.split('.')[1])).username
         
         // Create or get chat with TWO participants
-        const chatResponse = await fetch('http://localhost:5000/api/chats/create', {
+        const chatResponse = await fetch('${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/chats/create', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -536,7 +536,7 @@ function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, se
     const loadAnnouncements = async () => {
       try {
         const token = localStorage.getItem('lpuLiveToken');
-        const response = await fetch('http://localhost:5000/api/announcements', {
+        const response = await fetch('${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/announcements', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -557,7 +557,7 @@ function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, se
       setIsPosting(true);
       try {
         const token = localStorage.getItem('lpuLiveToken');
-        const response = await fetch('http://localhost:5000/api/announcements', {
+        const response = await fetch('${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/announcements', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

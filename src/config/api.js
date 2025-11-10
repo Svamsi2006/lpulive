@@ -1,7 +1,7 @@
 // API Configuration for Vercel Deployment
 const API_BASE_URL = import.meta.env.PROD 
   ? '' // Use relative URLs in production (Vercel)
-  : 'http://localhost:5000'; // Use localhost in development
+  : '${import.meta.env.PROD ? '' : 'http://localhost:5000'}'; // Use localhost in development
 
 // Helper function to get API URL
 export const getApiUrl = (path) => {
