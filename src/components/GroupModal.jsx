@@ -63,15 +63,17 @@ function GroupModal({ isOpen, onClose, onCreateGroup, currentUser }) {
 
     setIsLoading(true);
     try {
+      console.log('🔨 GroupModal: Creating group with:', { groupName, selectedMembers });
       await onCreateGroup(groupName, selectedMembers);
+      console.log('✅ GroupModal: Group created successfully');
       // Reset form
       setGroupName('');
       setSearchQuery('');
       setSelectedMembers([]);
       onClose();
     } catch (error) {
-      console.error('Failed to create group:', error);
-      alert('Failed to create group. Please try again.');
+      console.error('❌ GroupModal: Failed to create group:', error);
+      alert('Failed to create group: ' + (error.message || 'Unknown error'));
     } finally {
       setIsLoading(false);
     }

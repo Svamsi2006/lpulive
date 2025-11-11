@@ -456,16 +456,27 @@ app.post('/api/groups/university/create', authenticateToken, async (req, res) =>
     const { groupName, members } = req.body;
     const creator = req.user.username;
 
+    console.log('🏛️ University group creation attempt:', { creator, groupName, members });
+
     // Check if user is admin
     if (creator !== ADMIN_REG_NUMBER) {
+      console.log('❌ Not admin:', creator, 'Expected:', ADMIN_REG_NUMBER);
       return res.status(403).json({ error: 'Only admins can create university groups' });
+    }
+
+    if (!groupName || !groupName.trim()) {
+      return res.status(400).json({ error: 'Group name is required' });
+    }
+
+    if (!members || members.length === 0) {
+      return res.status(400).json({ error: 'At least one member is required' });
     }
 
     const { db } = await connectToDatabase();
     const universityGroups = db.collection('university_groups');
 
     const group = {
-      groupName,
+      groupName: groupName.trim(),
       members: members || [],
       creator,
       createdAt: new Date(),
@@ -476,15 +487,20 @@ app.post('/api/groups/university/create', authenticateToken, async (req, res) =>
 
     const result = await universityGroups.insertOne(group);
 
+    console.log('✅ University group created:', result.insertedId.toString());
+
     res.json({ 
       success: true, 
       groupId: result.insertedId.toString(),
-      group 
+      group: {
+        ...group,
+        _id: result.insertedId
+      }
     });
 
   } catch (error) {
-    console.error('Create university group error:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error('❌ Create university group error:', error);
+    res.status(500).json({ error: 'Server error: ' + error.message });
   }
 });
 

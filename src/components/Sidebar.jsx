@@ -102,6 +102,8 @@ function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, se
       if (!token) {
         throw new Error('No token found')
       }
+
+      console.log('📝 Creating group:', { groupName, members, activeView })
       
       // Determine endpoint based on current view
       const isUniversityGroup = activeView === 'university-groups';
@@ -109,6 +111,8 @@ function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, se
         ? getApiUrl('/api/groups/university/create')
         : getApiUrl('/api/groups/create');
       
+      console.log('🌐 Endpoint:', endpoint)
+
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -121,9 +125,11 @@ function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, se
         })
       })
 
+      console.log('📡 Response status:', response.status)
+
       if (response.ok) {
         const groupData = await response.json()
-        console.log('Group created:', groupData)
+        console.log('✅ Group created:', groupData)
         // Reload appropriate groups
         if (isUniversityGroup) {
           loadUniversityGroups();
@@ -133,10 +139,11 @@ function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, se
         return groupData
       } else {
         const error = await response.json()
+        console.error('❌ Server error:', error)
         throw new Error(error.error || 'Failed to create group')
       }
     } catch (error) {
-      console.error('Create group error:', error)
+      console.error('❌ Create group error:', error)
       throw error
     }
   }
