@@ -16,7 +16,9 @@ app.use(cors({
   origin: '*',
   credentials: true
 }));
-app.use(express.json());
+// Increase JSON payload limit for file uploads (base64)
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // MongoDB connection with caching
 let cachedClient = null;
@@ -344,8 +346,13 @@ app.post('/api/messages', authenticateToken, async (req, res) => {
     res.json(message);
 
   } catch (error) {
-    console.error('Send message error:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error('❌ Send message error:', error);
+    console.error('Error details:', error.message);
+    res.status(500).json({ 
+      error: 'Server error', 
+      message: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 });
 
@@ -607,8 +614,13 @@ app.post('/api/groups/:groupId/messages', authenticateToken, async (req, res) =>
     res.json(message);
 
   } catch (error) {
-    console.error('Send group message error:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error('❌ Send group message error:', error);
+    console.error('Error details:', error.message);
+    res.status(500).json({ 
+      error: 'Server error', 
+      message: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 });
 

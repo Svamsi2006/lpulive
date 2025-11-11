@@ -249,13 +249,13 @@ function ChatWindow({ activeChat, currentUser, onBack, showSidebar }) {
     const file = e.target.files[0]
     if (!file) return
 
-    // Check file size (max 5MB for now)
-    if (file.size > 5 * 1024 * 1024) {
-      alert('File size must be less than 5MB')
+    // Check file size (max 2MB for base64 to avoid payload issues)
+    if (file.size > 2 * 1024 * 1024) {
+      alert('File size must be less than 2MB')
       return
     }
 
-    console.log('📎 Uploading file:', file.name, file.type);
+    console.log('📎 Uploading file:', file.name, file.type, 'Size:', (file.size / 1024).toFixed(2), 'KB');
     setUploading(true)
     const token = localStorage.getItem('lpuLiveToken')
 
@@ -265,10 +265,12 @@ function ChatWindow({ activeChat, currentUser, onBack, showSidebar }) {
       
       reader.onload = async () => {
         const base64Data = reader.result
+        console.log('📦 Base64 data length:', base64Data.length);
         
         try {
           // Send message with base64 file data
           if (activeChat.isGroup && activeChat.groupId) {
+            console.log('📤 Sending to group:', activeChat.groupId);
             // Send to group
             const messageResponse = await fetch(`${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/groups/${activeChat.groupId}/messages`, {
               method: 'POST',
@@ -284,10 +286,12 @@ function ChatWindow({ activeChat, currentUser, onBack, showSidebar }) {
               })
             })
 
+            console.log('📥 Group response status:', messageResponse.status);
+            
             if (messageResponse.ok) {
               const newMessage = await messageResponse.json()
+              console.log('✅ Group message saved:', newMessage);
               setMessages(prev => [...prev, newMessage])
-              console.log('✅ Group file message sent');
               
               // Emit via socket to all group members
               if (socket) {
@@ -298,9 +302,12 @@ function ChatWindow({ activeChat, currentUser, onBack, showSidebar }) {
                 })
               }
             } else {
-              throw new Error('Failed to send group message')
+              const errorData = await messageResponse.json().catch(() => ({}))
+              console.error('❌ Group message failed:', errorData);
+              throw new Error(errorData.error || 'Failed to send group message')
             }
           } else {
+            console.log('📤 Sending to personal chat:', activeChat.chatId);
             // Send to personal chat
             const messageResponse = await fetch(getApiUrl('/api/messages'), {
               method: 'POST',
@@ -318,10 +325,12 @@ function ChatWindow({ activeChat, currentUser, onBack, showSidebar }) {
               })
             })
 
+            console.log('📥 Personal response status:', messageResponse.status);
+
             if (messageResponse.ok) {
               const newMessage = await messageResponse.json()
+              console.log('✅ Personal message saved:', newMessage);
               setMessages(prev => [...prev, newMessage])
-              console.log('✅ Personal file message sent');
               
               // Emit via socket for real-time delivery
               if (socket) {
@@ -332,7 +341,9 @@ function ChatWindow({ activeChat, currentUser, onBack, showSidebar }) {
                 })
               }
             } else {
-              throw new Error('Failed to send message')
+              const errorData = await messageResponse.json().catch(() => ({}))
+              console.error('❌ Personal message failed:', errorData);
+              throw new Error(errorData.error || 'Failed to send message')
             }
           }
           
