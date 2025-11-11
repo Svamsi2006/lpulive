@@ -13,13 +13,36 @@
   position: relative;
 }
 
-/* Mobile responsive */
+/* Mobile responsive - WhatsApp style */
 @media (max-width: 768px) {
+  .chat-app-body {
+    position: relative;
+  }
+
+  /* Hide sidebar when chat is open */
   .sidebar-hidden {
     display: none !important;
   }
   
-  .chat-window {
+  /* Hide chat window when sidebar is visible (no chat selected) */
+  .chat-app-body .sidebar:not(.sidebar-hidden) ~ .chat-window {
+    display: none !important;
+  }
+
+  /* Show chat window full screen when sidebar is hidden */
+  .chat-app-body .sidebar.sidebar-hidden ~ .chat-window {
+    display: flex !important;
     width: 100% !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
+  /* Sidebar takes full width on mobile */
+  .sidebar {
+    width: 100% !important;
+    max-width: 100% !important;
   }
 }

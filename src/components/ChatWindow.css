@@ -6,7 +6,7 @@
   overflow: hidden;
 }
 
-/* No Chat Selected State */
+/* No Chat Selected State - Hide on mobile */
 .no-chat-selected {
   flex: 1;
   display: flex;
@@ -16,6 +16,18 @@
   padding: 40px;
   text-align: center;
   color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  /* Hide "Select a chat" message on mobile */
+  .no-chat-selected {
+    display: none !important;
+  }
+  
+  /* Ensure chat window is hidden when no chat is active */
+  .chat-window:not(:has(.chat-header)) {
+    display: none !important;
+  }
 }
 
 .no-chat-icon {

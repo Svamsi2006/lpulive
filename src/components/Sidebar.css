@@ -491,8 +491,8 @@
 
 @media (max-width: 768px) {
   .sidebar {
-    width: 100%;
-    max-width: 320px;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   .search-bar {
@@ -535,7 +535,8 @@
 /* Extra small devices */
 @media (max-width: 480px) {
   .sidebar {
-    max-width: 280px;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   .search-bar {
