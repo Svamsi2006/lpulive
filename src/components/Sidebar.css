@@ -457,4 +457,101 @@
     width: 100%;
     max-width: 320px;
   }
+
+  .search-bar {
+    padding: 12px;
+  }
+
+  .search-bar input {
+    padding: 10px 36px 10px 12px;
+    font-size: 13px;
+  }
+
+  .group-item {
+    padding: 10px 12px;
+  }
+
+  .group-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+  }
+
+  .group-name {
+    font-size: 14px;
+  }
+
+  .group-last-message {
+    font-size: 12px;
+  }
+
+  .group-timestamp {
+    font-size: 11px;
+  }
+
+  .tab-btn {
+    padding: 10px;
+    font-size: 13px;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+  .sidebar {
+    max-width: 280px;
+  }
+
+  .search-bar {
+    padding: 10px;
+  }
+
+  .search-bar input {
+    padding: 8px 32px 8px 10px;
+    font-size: 12px;
+  }
+
+  .search-icon {
+    font-size: 16px;
+    right: 22px;
+  }
+
+  .group-item {
+    padding: 8px 10px;
+    gap: 10px;
+  }
+
+  .group-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+
+  .online-indicator {
+    width: 10px;
+    height: 10px;
+    border-width: 2px;
+  }
+
+  .group-name {
+    font-size: 13px;
+  }
+
+  .group-last-message {
+    font-size: 11px;
+  }
+
+  .group-timestamp {
+    font-size: 10px;
+  }
+
+  .tab-btn {
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .create-group-btn,
+  .submit-bug-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
 }

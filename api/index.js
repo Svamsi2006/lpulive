@@ -321,6 +321,10 @@ app.post('/api/messages', authenticateToken, async (req, res) => {
 
     const result = await messages.insertOne(message);
 
+    // Add the generated ID to the message object
+    message._id = result.insertedId;
+    message.messageId = result.insertedId.toString();
+
     // Update chat's last message
     await chats.updateOne(
       { _id: new ObjectId(chatId) },
@@ -336,11 +340,7 @@ app.post('/api/messages', authenticateToken, async (req, res) => {
       }
     );
 
-    res.json({ 
-      success: true, 
-      messageId: result.insertedId.toString(),
-      message 
-    });
+    res.json(message);
 
   } catch (error) {
     console.error('Send message error:', error);

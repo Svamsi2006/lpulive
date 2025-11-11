@@ -384,11 +384,68 @@
     padding: 8px 12px;
   }
   
+  .header-brand {
+    font-size: 16px;
+  }
+  
   .header-nav {
     gap: 4px;
   }
   
   .nav-item {
     padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  .user-profile {
+    gap: 6px;
+  }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .user-name {
+    font-size: 13px;
+  }
+
+  .user-status {
+    font-size: 11px;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+  .header {
+    padding: 6px 10px;
+  }
+
+  .header-brand {
+    font-size: 14px;
+  }
+
+  .nav-item {
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+
+  .avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .user-name {
+    display: none; /* Hide name on very small screens */
+  }
+
+  .user-status {
+    font-size: 10px;
+  }
+
+  .header-nav {
+    gap: 2px;
   }
 }
