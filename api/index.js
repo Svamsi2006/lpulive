@@ -299,7 +299,7 @@ app.get('/api/messages/:chatId', authenticateToken, async (req, res) => {
 // Send message
 app.post('/api/messages', authenticateToken, async (req, res) => {
   try {
-    const { chatId, receiver, text, fileUrl, fileName, fileType } = req.body;
+    const { chatId, receiver, text, fileUrl, fileName, fileType, fileData } = req.body;
     const sender = req.user.username;
 
     const { db } = await connectToDatabase();
@@ -312,6 +312,7 @@ app.post('/api/messages', authenticateToken, async (req, res) => {
       receiver,
       text: text || '',
       fileUrl: fileUrl || null,
+      fileData: fileData || null, // Store base64 data
       fileName: fileName || null,
       fileType: fileType || null,
       timestamp: new Date(),
@@ -501,6 +502,113 @@ app.post('/api/groups/university/create', authenticateToken, async (req, res) =>
   } catch (error) {
     console.error('❌ Create university group error:', error);
     res.status(500).json({ error: 'Server error: ' + error.message });
+  }
+});
+
+// ==================== GROUP MESSAGE ROUTES ====================
+
+// Get group messages
+app.get('/api/groups/:groupId/messages', authenticateToken, async (req, res) => {
+  try {
+    const { groupId } = req.params;
+    const { db } = await connectToDatabase();
+    
+    // Check both regular and university groups
+    const groups = db.collection('groups');
+    const universityGroups = db.collection('university_groups');
+    
+    let group = await groups.findOne({ _id: new ObjectId(groupId) });
+    if (!group) {
+      group = await universityGroups.findOne({ _id: new ObjectId(groupId) });
+    }
+    
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found' });
+    }
+
+    const messages = db.collection('group_messages');
+    const groupMessages = await messages.find({ groupId })
+      .sort({ timestamp: 1 })
+      .toArray();
+
+    res.json(groupMessages);
+
+  } catch (error) {
+    console.error('Get group messages error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Send group message
+app.post('/api/groups/:groupId/messages', authenticateToken, async (req, res) => {
+  try {
+    const { groupId } = req.params;
+    const { text, fileUrl, fileName, fileType, fileData } = req.body;
+    const sender = req.user.username;
+
+    const { db } = await connectToDatabase();
+    
+    // Check both regular and university groups
+    const groups = db.collection('groups');
+    const universityGroups = db.collection('university_groups');
+    
+    let group = await groups.findOne({ _id: new ObjectId(groupId) });
+    let isUniversityGroup = false;
+    
+    if (!group) {
+      group = await universityGroups.findOne({ _id: new ObjectId(groupId) });
+      isUniversityGroup = true;
+    }
+    
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found' });
+    }
+
+    // Verify user is a member
+    if (!group.members.includes(sender)) {
+      return res.status(403).json({ error: 'You are not a member of this group' });
+    }
+
+    const messages = db.collection('group_messages');
+    
+    const message = {
+      groupId,
+      sender,
+      text: text || '',
+      fileUrl: fileUrl || null,
+      fileData: fileData || null, // Store base64 data
+      fileName: fileName || null,
+      fileType: fileType || null,
+      timestamp: new Date(),
+      delivered: true,
+      read: false
+    };
+
+    const result = await messages.insertOne(message);
+    message._id = result.insertedId;
+    message.messageId = result.insertedId.toString();
+
+    // Update group's last message
+    const collection = isUniversityGroup ? universityGroups : groups;
+    await collection.updateOne(
+      { _id: new ObjectId(groupId) },
+      { 
+        $set: { 
+          lastMessage: {
+            text: text || fileName || 'File',
+            sender,
+            timestamp: message.timestamp
+          },
+          updatedAt: new Date()
+        }
+      }
+    );
+
+    res.json(message);
+
+  } catch (error) {
+    console.error('Send group message error:', error);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 

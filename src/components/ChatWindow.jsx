@@ -249,58 +249,116 @@ function ChatWindow({ activeChat, currentUser, onBack, showSidebar }) {
     const file = e.target.files[0]
     if (!file) return
 
+    // Check file size (max 5MB for now)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size must be less than 5MB')
+      return
+    }
+
+    console.log('📎 Uploading file:', file.name, file.type);
     setUploading(true)
     const token = localStorage.getItem('lpuLiveToken')
-    const formData = new FormData()
-    formData.append('file', file)
 
     try {
-      // Step 1: Upload file first
-      const uploadResponse = await fetch(getApiUrl('/api/upload'), {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
-      })
-
-      if (uploadResponse.ok) {
-        const fileData = await uploadResponse.json()
+      // Convert file to base64 for small files (images, PDFs)
+      const reader = new FileReader()
+      
+      reader.onload = async () => {
+        const base64Data = reader.result
         
-        // Step 2: Send message with file info
-        const messageResponse = await fetch(getApiUrl('/api/messages'), {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            chatId: activeChat.chatId,
-            receiver: activeChat.regNumber || activeChat.registrationNumber,
-            text: '',
-            fileUrl: fileData.fileUrl,
-            fileName: fileData.fileName,
-            fileType: fileData.fileType
-          })
-        })
-
-        if (messageResponse.ok) {
-          const newMessage = await messageResponse.json()
-          setMessages(prev => [...prev, newMessage])
-          
-          // Emit via socket
-          if (socket) {
-            socket.emit('send-message', {
-              ...newMessage,
-              receiver: activeChat.regNumber || activeChat.registrationNumber
+        try {
+          // Send message with base64 file data
+          if (activeChat.isGroup && activeChat.groupId) {
+            // Send to group
+            const messageResponse = await fetch(`${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/groups/${activeChat.groupId}/messages`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                text: '',
+                fileData: base64Data,
+                fileName: file.name,
+                fileType: file.type
+              })
             })
+
+            if (messageResponse.ok) {
+              const newMessage = await messageResponse.json()
+              setMessages(prev => [...prev, newMessage])
+              console.log('✅ Group file message sent');
+              
+              // Emit via socket to all group members
+              if (socket) {
+                socket.emit('send-group-message', {
+                  ...newMessage,
+                  groupId: activeChat.groupId,
+                  members: activeChat.members
+                })
+              }
+            } else {
+              throw new Error('Failed to send group message')
+            }
+          } else {
+            // Send to personal chat
+            const messageResponse = await fetch(getApiUrl('/api/messages'), {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                chatId: activeChat.chatId,
+                receiver: activeChat.regNumber || activeChat.registrationNumber,
+                text: '',
+                fileData: base64Data,
+                fileName: file.name,
+                fileType: file.type
+              })
+            })
+
+            if (messageResponse.ok) {
+              const newMessage = await messageResponse.json()
+              setMessages(prev => [...prev, newMessage])
+              console.log('✅ Personal file message sent');
+              
+              // Emit via socket for real-time delivery
+              if (socket) {
+                socket.emit('send-message', {
+                  chatId: activeChat.chatId,
+                  to: activeChat.regNumber || activeChat.registrationNumber,
+                  message: newMessage
+                })
+              }
+            } else {
+              throw new Error('Failed to send message')
+            }
           }
+          
+          // Clear file input
+          if (fileInputRef.current) {
+            fileInputRef.current.value = ''
+          }
+          setUploading(false)
+        } catch (error) {
+          console.error('❌ Error sending file:', error)
+          alert('Failed to send file: ' + error.message)
+          setUploading(false)
         }
       }
+      
+      reader.onerror = () => {
+        console.error('❌ Error reading file')
+        alert('Failed to read file')
+        setUploading(false)
+      }
+      
+      reader.readAsDataURL(file)
+      
     } catch (error) {
-      console.error('Error uploading file:', error)
-      alert('Failed to upload file')
-    } finally {
+      console.error('❌ Error uploading file:', error)
+      alert('Failed to upload file: ' + error.message)
       setUploading(false)
     }
   }
@@ -316,15 +374,32 @@ function ChatWindow({ activeChat, currentUser, onBack, showSidebar }) {
   }
 
   const renderFilePreview = (msg) => {
-    if (!msg.fileUrl) return null
+    // Check for both fileUrl and fileData (base64)
+    if (!msg.fileUrl && !msg.fileData) return null
 
     const fileType = msg.fileType?.split('/')[0]
-    const baseUrl = import.meta.env.PROD ? '' : 'http://localhost:5000'
+    
+    // Use fileData (base64) if available, otherwise use fileUrl
+    const fileSource = msg.fileData || `${import.meta.env.PROD ? '' : 'http://localhost:5000'}${msg.fileUrl}`
 
     if (fileType === 'image') {
       return (
         <div className="file-preview">
-          <img src={`${baseUrl}${msg.fileUrl}`} alt={msg.fileName} />
+          <img src={fileSource} alt={msg.fileName} />
+        </div>
+      )
+    }
+
+    if (fileType === 'application' && msg.fileType?.includes('pdf')) {
+      return (
+        <div className="file-attachment pdf-file">
+          <div className="file-icon">�</div>
+          <div className="file-info">
+            <div className="file-name">{msg.fileName}</div>
+            <a href={fileSource} target="_blank" rel="noopener noreferrer" className="file-download">
+              Open PDF
+            </a>
+          </div>
         </div>
       )
     }
@@ -332,9 +407,12 @@ function ChatWindow({ activeChat, currentUser, onBack, showSidebar }) {
     return (
       <div className="file-attachment">
         <div className="file-icon">📎</div>
-        <a href={`${baseUrl}${msg.fileUrl}`} target="_blank" rel="noopener noreferrer">
-          {msg.fileName}
-        </a>
+        <div className="file-info">
+          <div className="file-name">{msg.fileName}</div>
+          <a href={fileSource} download={msg.fileName} className="file-download">
+            Download
+          </a>
+        </div>
       </div>
     )
   }
@@ -431,8 +509,6 @@ function ChatWindow({ activeChat, currentUser, onBack, showSidebar }) {
           </div>
         </div>
         <div className="chat-header-actions">
-          <button className="chat-action-btn" title="Call">📞</button>
-          <button className="chat-action-btn" title="Video Call">📹</button>
           <button className="chat-action-btn" title="Settings">⚙️</button>
         </div>
       </div>
