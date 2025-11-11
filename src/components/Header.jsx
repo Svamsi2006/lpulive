@@ -153,13 +153,7 @@ function Header({ user, onLogout, theme, toggleTheme, activeView, setActiveView 
             🔒 Change Password
           </button>
           <button className="settings-option">
-            👤 Profile Settings
-          </button>
-          <button className="settings-option">
-            🔔 Notification Preferences
-          </button>
-          <button className="settings-option">
-            🔐 Privacy Settings
+             Privacy Settings
           </button>
           <div className="dropdown-divider"></div>
           <button 
