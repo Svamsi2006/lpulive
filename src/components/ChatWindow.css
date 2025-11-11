@@ -144,6 +144,9 @@
   flex-direction: column;
   gap: 16px;
   background: var(--bg-color);
+  /* Smooth scrolling for mobile */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
 }
 
 .message {
@@ -359,6 +362,10 @@
   max-height: 120px;
   min-height: 44px;
   font-family: inherit;
+  /* Better mobile keyboard handling */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
 
 .attach-btn,
