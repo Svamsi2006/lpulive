@@ -3,7 +3,7 @@ import { useSocket } from '../context/SocketContext'
 import { getApiUrl } from '../utils/api'
 import './ChatWindow.css'
 
-function ChatWindow({ activeChat, currentUser }) {
+function ChatWindow({ activeChat, currentUser, onBack, showSidebar }) {
   const [message, setMessage] = useState('')
   const [messages, setMessages] = useState([])
   const [uploading, setUploading] = useState(false)
@@ -344,6 +344,9 @@ function ChatWindow({ activeChat, currentUser }) {
       {/* Chat Header */}
       <div className="chat-header">
         <div className="chat-header-left">
+          <button className="back-btn" onClick={onBack}>
+            ←
+          </button>
           <div className="chat-avatar-wrapper">
             <div className="chat-avatar">
               {activeChat.isGroup 

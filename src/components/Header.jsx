@@ -68,32 +68,16 @@ function Header({ user, onLogout, theme, toggleTheme, activeView, setActiveView 
   return (
     <header className="header">
       <div className="header-left">
-        <div className="logo">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
-          </svg>
-          <span className="logo-text">LPU Live</span>
-        </div>
+        <h1 className="app-title">LPU Live</h1>
       </div>
-
-      <nav className="header-nav">
-        {menuItems.map(item => (
-          <button
-            key={item.id}
-            className={`nav-item ${activeView === item.id ? 'active' : ''}`}
-            onClick={() => setActiveView(item.id)}
-            title={item.label}
-          >
-            <span className="nav-icon">{item.icon}</span>
-            <span className="nav-label">{item.label}</span>
-          </button>
-        ))}
-      </nav>
 
       <div className="header-right">
         <button 
           className="header-icon-btn"
-          onClick={() => setShowNotifications(!showNotifications)}
+          onClick={() => {
+            setShowNotifications(!showNotifications)
+            setShowSettings(false)
+          }}
           title="Notifications"
         >
           🔔
@@ -103,7 +87,7 @@ function Header({ user, onLogout, theme, toggleTheme, activeView, setActiveView 
         <button 
           className="header-icon-btn"
           onClick={toggleTheme}
-          title="Toggle Theme"
+          title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
         >
           {theme === 'light' ? '🌙' : '☀️'}
         </button>
@@ -119,17 +103,10 @@ function Header({ user, onLogout, theme, toggleTheme, activeView, setActiveView 
           ⚙️
         </button>
 
-        <div className="user-profile">
-          <div className="user-avatar">
-            {user.name.charAt(0).toUpperCase()}
+        <div className="user-profile" onClick={() => setShowSettings(!showSettings)}>
+          <div className="avatar">
+            {user?.name?.charAt(0).toUpperCase() || user?.registrationNumber?.charAt(0).toUpperCase()}
           </div>
-          <div className="user-info">
-            <div className="user-name">{user.name}</div>
-            <div className="user-reg">{user.registrationNumber}</div>
-          </div>
-          <button className="logout-btn" onClick={onLogout} title="Logout">
-            🚪
-          </button>
         </div>
       </div>
 

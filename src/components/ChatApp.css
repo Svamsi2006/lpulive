@@ -3,11 +3,23 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: var(--bg-color);
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.05), rgba(253, 186, 116, 0.05));
 }
 
 .chat-app-body {
   display: flex;
   flex: 1;
   overflow: hidden;
+  position: relative;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .sidebar-hidden {
+    display: none !important;
+  }
+  
+  .chat-window {
+    width: 100% !important;
+  }
 }

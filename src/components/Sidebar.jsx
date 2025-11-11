@@ -4,7 +4,7 @@ import GroupModal from './GroupModal'
 import { getApiUrl } from '../utils/api'
 import './Sidebar.css'
 
-function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, searchQuery, setSearchQuery, currentUser }) {
+function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, searchQuery, setSearchQuery, currentUser, setActiveView, showSidebar }) {
   const [regNumberInput, setRegNumberInput] = useState('')
   const [searchError, setSearchError] = useState('')
   const [recentChats, setRecentChats] = useState([])
@@ -591,7 +591,28 @@ function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, se
   )
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${!showSidebar ? 'sidebar-hidden' : ''}`}>
+      <div className="sidebar-tabs">
+        <button 
+          className={`tab-btn ${activeView === 'personal-chats' ? 'active' : ''}`}
+          onClick={() => setActiveView('personal-chats')}
+        >
+          💬 Chats
+        </button>
+        <button 
+          className={`tab-btn ${activeView === 'university-groups' ? 'active' : ''}`}
+          onClick={() => setActiveView('university-groups')}
+        >
+          🏛️ Groups
+        </button>
+        <button 
+          className={`tab-btn ${activeView === 'announcements' ? 'active' : ''}`}
+          onClick={() => setActiveView('announcements')}
+        >
+          📢 Announcements
+        </button>
+      </div>
+      
       {activeView === 'university-groups' && renderUniversityGroups()}
       {activeView === 'personal-groups' && renderPersonalGroups()}
       {activeView === 'personal-chats' && renderPersonalChats()}

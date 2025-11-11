@@ -1,6 +1,8 @@
 .header {
-  background-color: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.1), rgba(253, 186, 116, 0.1));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(251, 146, 60, 0.2);
   padding: 12px 24px;
   display: flex;
   align-items: center;
@@ -8,6 +10,7 @@
   gap: 24px;
   position: relative;
   z-index: 100;
+  box-shadow: 0 2px 8px rgba(251, 146, 60, 0.1);
 }
 
 .header-left {
@@ -15,17 +18,13 @@
   align-items: center;
 }
 
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: var(--primary-color);
-  font-weight: 700;
+.app-title {
   font-size: 20px;
-}
-
-.logo-text {
-  color: var(--text-primary);
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .header-nav {

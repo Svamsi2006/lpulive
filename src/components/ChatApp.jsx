@@ -5,12 +5,17 @@ import ChatWindow from './ChatWindow'
 import './ChatApp.css'
 
 function ChatApp({ user, onLogout, theme, toggleTheme }) {
-  const [activeView, setActiveView] = useState('university-groups')
+  const [activeView, setActiveView] = useState('personal-chats')
   const [activeChat, setActiveChat] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [showSidebar, setShowSidebar] = useState(true)
 
   const handleChatSelect = (chat) => {
     setActiveChat(chat)
+    // Hide sidebar on mobile when chat is selected
+    if (window.innerWidth <= 768) {
+      setShowSidebar(false)
+    }
   }
 
   const handleStartPersonalChat = (userData) => {
@@ -18,6 +23,15 @@ function ChatApp({ user, onLogout, theme, toggleTheme }) {
       type: 'personal',
       ...userData
     })
+    // Hide sidebar on mobile when chat starts
+    if (window.innerWidth <= 768) {
+      setShowSidebar(false)
+    }
+  }
+
+  const handleBackToChats = () => {
+    setShowSidebar(true)
+    setActiveChat(null)
   }
 
   return (
@@ -40,11 +54,15 @@ function ChatApp({ user, onLogout, theme, toggleTheme }) {
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           currentUser={user}
+          setActiveView={setActiveView}
+          showSidebar={showSidebar}
         />
         
         <ChatWindow 
           activeChat={activeChat}
           currentUser={user}
+          onBack={handleBackToChats}
+          showSidebar={showSidebar}
         />
       </div>
     </div>
