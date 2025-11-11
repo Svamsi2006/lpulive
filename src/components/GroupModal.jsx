@@ -12,17 +12,26 @@ function GroupModal({ isOpen, onClose, onCreateGroup, currentUser }) {
   // Load all users from student_data.json
   useEffect(() => {
     if (isOpen) {
+      console.log('🔍 GroupModal opened, loading users...');
       fetch('/student_data.json')
-        .then(res => res.json())
+        .then(res => {
+          console.log('📡 Fetch response:', res.status);
+          return res.json();
+        })
         .then(data => {
+          console.log('📊 Loaded users:', data.length);
           // Filter out current user
           const users = data.filter(
             user => user['Registration Number'] !== currentUser
           );
+          console.log('✅ Filtered users (excluding current):', users.length);
           setAllUsers(users);
           setFilteredUsers(users.slice(0, 20)); // Show first 20 initially
         })
-        .catch(err => console.error('Failed to load users:', err));
+        .catch(err => {
+          console.error('❌ Failed to load users:', err);
+          alert('Failed to load users. Please refresh the page.');
+        });
     }
   }, [isOpen, currentUser]);
 
@@ -51,6 +60,10 @@ function GroupModal({ isOpen, onClose, onCreateGroup, currentUser }) {
   };
 
   const handleCreateGroup = async () => {
+    console.log('🔘 Create button clicked');
+    console.log('📝 Group name:', groupName);
+    console.log('👥 Selected members:', selectedMembers);
+    
     if (!groupName.trim()) {
       alert('Please enter a group name');
       return;
@@ -94,6 +107,17 @@ function GroupModal({ isOpen, onClose, onCreateGroup, currentUser }) {
       return user ? user['Name'] : regNum;
     });
   };
+
+  const isButtonDisabled = isLoading || !groupName.trim() || selectedMembers.length === 0;
+  
+  console.log('🎨 Modal render state:', {
+    isLoading,
+    groupName: groupName.trim(),
+    selectedMembersCount: selectedMembers.length,
+    allUsersCount: allUsers.length,
+    filteredUsersCount: filteredUsers.length,
+    isButtonDisabled
+  });
 
   return (
     <div className="group-modal-overlay" onClick={handleClose}>
@@ -193,7 +217,7 @@ function GroupModal({ isOpen, onClose, onCreateGroup, currentUser }) {
           <button 
             className="btn-create" 
             onClick={handleCreateGroup}
-            disabled={isLoading || !groupName.trim() || selectedMembers.length === 0}
+            disabled={isButtonDisabled}
           >
             {isLoading ? 'Creating...' : 'Create Group'}
           </button>
