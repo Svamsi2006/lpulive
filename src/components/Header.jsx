@@ -132,7 +132,17 @@ function Header({ user, onLogout, theme, toggleTheme, activeView, setActiveView 
 
       {showSettings && (
         <div className="dropdown settings-dropdown">
-          <div className="dropdown-header">Settings</div>
+          <div className="dropdown-header">
+            <div className="user-info-dropdown">
+              <div className="avatar-large">
+                {user?.name?.charAt(0).toUpperCase() || user?.registrationNumber?.charAt(0).toUpperCase()}
+              </div>
+              <div className="user-details">
+                <div className="user-name-text">{user?.name || 'User'}</div>
+                <div className="user-reg-text">{user?.registrationNumber}</div>
+              </div>
+            </div>
+          </div>
           <button 
             className="settings-option"
             onClick={() => {
@@ -150,6 +160,16 @@ function Header({ user, onLogout, theme, toggleTheme, activeView, setActiveView 
           </button>
           <button className="settings-option">
             🔐 Privacy Settings
+          </button>
+          <div className="dropdown-divider"></div>
+          <button 
+            className="settings-option logout-option"
+            onClick={() => {
+              setShowSettings(false)
+              onLogout()
+            }}
+          >
+            🚪 Logout
           </button>
         </div>
       )}

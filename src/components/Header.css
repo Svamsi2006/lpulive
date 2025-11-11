@@ -256,6 +256,56 @@
   background: var(--bg-secondary);
 }
 
+.logout-option {
+  color: var(--error-color);
+  font-weight: 600;
+}
+
+.logout-option:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 8px 0;
+}
+
+.user-info-dropdown {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.avatar-large {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.user-details {
+  flex: 1;
+}
+
+.user-name-text {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 15px;
+}
+
+.user-reg-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
 /* Modal */
 .modal-overlay {
   position: fixed;
