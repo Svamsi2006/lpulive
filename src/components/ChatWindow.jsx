@@ -8,9 +8,11 @@ function ChatWindow({ activeChat, currentUser, onBack, showSidebar }) {
   const [messages, setMessages] = useState([])
   const [uploading, setUploading] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
+  const [lastMessageId, setLastMessageId] = useState(null)
   const messagesEndRef = useRef(null)
   const fileInputRef = useRef(null)
-  const { socket, onlineUsers } = useSocket()
+  const pollingIntervalRef = useRef(null)
+  const { socket, onlineUsers, isConnected } = useSocket()
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -32,18 +34,48 @@ function ChatWindow({ activeChat, currentUser, onBack, showSidebar }) {
     }
   }, [activeChat])
 
+  // Polling fallback when socket is not connected
+  useEffect(() => {
+    if (activeChat && activeChat.chatId) {
+      // Start polling for new messages every 2 seconds
+      pollingIntervalRef.current = setInterval(() => {
+        if (!isConnected) {
+          console.log('🔄 Polling for new messages (socket disconnected)')
+          loadMessages()
+        }
+      }, 2000)
+
+      return () => {
+        if (pollingIntervalRef.current) {
+          clearInterval(pollingIntervalRef.current)
+        }
+      }
+    }
+  }, [activeChat, isConnected])
+
   // Socket listeners
   useEffect(() => {
     if (socket && activeChat) {
-      socket.on('receive-message', (newMessage) => {
-        if (newMessage.chatId === activeChat.chatId) {
-          setMessages(prev => [...prev, newMessage])
+      const handleReceiveMessage = (newMessage) => {
+        console.log('📨 Received message:', newMessage)
+        // Check if message belongs to current chat
+        if (newMessage.chatId === activeChat.chatId || 
+            (newMessage.sender === activeChat.regNumber || newMessage.sender === activeChat.registrationNumber) ||
+            (newMessage.receiver === currentUser.registrationNumber)) {
+          setMessages(prev => {
+            // Avoid duplicates
+            const exists = prev.some(msg => msg._id === newMessage._id || msg.messageId === newMessage.messageId)
+            if (exists) return prev
+            return [...prev, newMessage]
+          })
           markMessagesAsRead()
         }
-      })
+      }
+
+      socket.on('receive-message', handleReceiveMessage)
 
       socket.on('message-sent', (sentMessage) => {
-        // Message confirmation
+        console.log('✅ Message sent confirmation:', sentMessage)
       })
 
       socket.on('message-read-receipt', ({ messageId, readAt }) => {
@@ -62,13 +94,13 @@ function ChatWindow({ activeChat, currentUser, onBack, showSidebar }) {
       })
 
       return () => {
-        socket.off('receive-message')
+        socket.off('receive-message', handleReceiveMessage)
         socket.off('message-sent')
         socket.off('message-read-receipt')
         socket.off('user-typing')
       }
     }
-  }, [socket, activeChat])
+  }, [socket, activeChat, currentUser])
 
   const loadMessages = async () => {
     try {
@@ -81,7 +113,17 @@ function ChatWindow({ activeChat, currentUser, onBack, showSidebar }) {
 
       if (response.ok) {
         const data = await response.json()
-        setMessages(data)
+        setMessages(prevMessages => {
+          // Only update if we have new messages
+          if (data.length !== prevMessages.length) {
+            const lastMsg = data[data.length - 1]
+            if (lastMsg && lastMsg._id !== lastMessageId) {
+              setLastMessageId(lastMsg._id)
+              return data
+            }
+          }
+          return prevMessages
+        })
       }
     } catch (error) {
       console.error('Error loading messages:', error)
@@ -182,11 +224,12 @@ function ChatWindow({ activeChat, currentUser, onBack, showSidebar }) {
             setMessages(prev => [...prev, newMessage])
             setMessage('')
             
-            // Emit via socket
+            // Emit via socket for real-time delivery
             if (socket) {
               socket.emit('send-message', {
-                ...newMessage,
-                receiver: activeChat.regNumber || activeChat.registrationNumber
+                chatId: activeChat.chatId,
+                to: activeChat.regNumber || activeChat.registrationNumber,
+                message: newMessage
               })
             }
           } else {

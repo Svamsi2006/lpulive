@@ -16,28 +16,22 @@ export const SocketProvider = ({ children, user }) => {
 
   useEffect(() => {
     if (user) {
-      // Check if we're in production (Vercel)
-      const isProduction = import.meta.env.PROD
+      // Always try to use Socket.IO first (works in development and some production setups)
+      const socketUrl = API_BASE_URL || 'http://localhost:5000'
+      console.log('� Connecting to socket server:', socketUrl)
       
-      if (isProduction) {
-        // Use polling mode in production
-        console.log('🔄 Using polling mode for Vercel deployment')
-        setUsePolling(true)
-        setIsConnected(true)
-        return
-      }
-
-      // Use Socket.IO in development
-      const newSocket = io(API_BASE_URL || 'http://localhost:5000', {
-        transports: ['websocket'],
+      const newSocket = io(socketUrl, {
+        transports: ['polling', 'websocket'], // Try polling first, then upgrade to websocket
         reconnection: true,
         reconnectionDelay: 1000,
-        reconnectionAttempts: 5
+        reconnectionAttempts: 10,
+        timeout: 10000
       })
 
       newSocket.on('connect', () => {
-        console.log('✅ Connected to socket server')
+        console.log('✅ Connected to socket server via', newSocket.io.engine.transport.name)
         setIsConnected(true)
+        setUsePolling(false)
         newSocket.emit('user-online', user.registrationNumber)
       })
 
@@ -59,16 +53,18 @@ export const SocketProvider = ({ children, user }) => {
       })
 
       newSocket.on('connect_error', (error) => {
-        console.error('Socket connection error:', error)
-        // Fallback to polling
-        console.log('⚠️ Falling back to polling mode')
-        setUsePolling(true)
-        setIsConnected(true)
+        console.error('Socket connection error:', error.message)
+        setIsConnected(false)
+      })
+
+      newSocket.io.engine.on('upgrade', (transport) => {
+        console.log('🚀 Upgraded to', transport.name)
       })
 
       setSocket(newSocket)
 
       return () => {
+        console.log('🔌 Closing socket connection')
         newSocket.close()
       }
     }
