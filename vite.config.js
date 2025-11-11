@@ -7,11 +7,11 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: '${import.meta.env.PROD ? '' : 'http://localhost:5000'}',
+        target: 'http://localhost:5000',
         changeOrigin: true,
       },
       '/socket.io': {
-        target: '${import.meta.env.PROD ? '' : 'http://localhost:5000'}',
+        target: 'http://localhost:5000',
         ws: true,
       },
     },

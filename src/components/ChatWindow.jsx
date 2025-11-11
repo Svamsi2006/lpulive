@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useSocket } from '../context/SocketContext'
+import { getApiUrl } from '../utils/api'
 import './ChatWindow.css'
 
 function ChatWindow({ activeChat, currentUser }) {
@@ -110,7 +111,7 @@ function ChatWindow({ activeChat, currentUser }) {
 
     try {
       const token = localStorage.getItem('lpuLiveToken')
-      await fetch('${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/messages/read', {
+      await fetch(getApiUrl('/api/messages/read'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -163,7 +164,7 @@ function ChatWindow({ activeChat, currentUser }) {
           }
         } else {
           // Send personal message
-          const response = await fetch('${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/messages', {
+          const response = await fetch(getApiUrl('/api/messages'), {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -212,7 +213,7 @@ function ChatWindow({ activeChat, currentUser }) {
 
     try {
       // Step 1: Upload file first
-      const uploadResponse = await fetch('${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/upload', {
+      const uploadResponse = await fetch(getApiUrl('/api/upload'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -224,7 +225,7 @@ function ChatWindow({ activeChat, currentUser }) {
         const fileData = await uploadResponse.json()
         
         // Step 2: Send message with file info
-        const messageResponse = await fetch('${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/messages', {
+        const messageResponse = await fetch(getApiUrl('/api/messages'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -275,7 +276,7 @@ function ChatWindow({ activeChat, currentUser }) {
     if (!msg.fileUrl) return null
 
     const fileType = msg.fileType?.split('/')[0]
-    const baseUrl = '${import.meta.env.PROD ? '' : 'http://localhost:5000'}'
+    const baseUrl = import.meta.env.PROD ? '' : 'http://localhost:5000'
 
     if (fileType === 'image') {
       return (

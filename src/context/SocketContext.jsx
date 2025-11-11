@@ -28,7 +28,7 @@ export const SocketProvider = ({ children, user }) => {
       }
 
       // Use Socket.IO in development
-      const newSocket = io(API_BASE_URL || '${import.meta.env.PROD ? '' : 'http://localhost:5000'}', {
+      const newSocket = io(API_BASE_URL || 'http://localhost:5000', {
         transports: ['websocket'],
         reconnection: true,
         reconnectionDelay: 1000,

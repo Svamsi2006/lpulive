@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { getApiUrl } from '../utils/api'
 import './Header.css'
 
 function Header({ user, onLogout, theme, toggleTheme, activeView, setActiveView }) {
@@ -28,7 +29,7 @@ function Header({ user, onLogout, theme, toggleTheme, activeView, setActiveView 
 
     try {
       const token = localStorage.getItem('lpuLiveToken')
-      const response = await fetch('${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/auth/change-password', {
+      const response = await fetch(getApiUrl('/api/auth/change-password'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useSocket } from '../context/SocketContext'
 import GroupModal from './GroupModal'
+import { getApiUrl } from '../utils/api'
 import './Sidebar.css'
 
 function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, searchQuery, setSearchQuery, currentUser }) {
@@ -50,7 +51,7 @@ function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, se
         return
       }
       
-      const response = await fetch('${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/chats', {
+      const response = await fetch(getApiUrl('/api/chats'), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -77,7 +78,7 @@ function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, se
         return
       }
       
-      const response = await fetch('${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/groups', {
+      const response = await fetch(getApiUrl('/api/groups'), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -105,8 +106,8 @@ function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, se
       // Determine endpoint based on current view
       const isUniversityGroup = activeView === 'university-groups';
       const endpoint = isUniversityGroup 
-        ? '${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/groups/university/create'
-        : '${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/groups/create';
+        ? getApiUrl('/api/groups/university/create')
+        : getApiUrl('/api/groups/create');
       
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -150,7 +151,7 @@ function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, se
         return
       }
       
-      const response = await fetch('${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/groups/university', {
+      const response = await fetch(getApiUrl('/api/groups/university'), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -174,7 +175,7 @@ function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, se
         return
       }
       
-      const response = await fetch('${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/announcements', {
+      const response = await fetch(getApiUrl('/api/announcements'), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -195,7 +196,7 @@ function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, se
     setIsPosting(true)
     try {
       const token = localStorage.getItem('lpuLiveToken')
-      const response = await fetch('${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/announcements', {
+      const response = await fetch(getApiUrl('/api/announcements'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -236,7 +237,7 @@ function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, se
       }
       
       // Get user data
-      const userResponse = await fetch(`${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/users/${regNumberInput}`, {
+      const userResponse = await fetch(getApiUrl(`/api/users/${regNumberInput}`), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -249,7 +250,7 @@ function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, se
         const currentUser = JSON.parse(atob(token.split('.')[1])).username
         
         // Create or get chat with TWO participants
-        const chatResponse = await fetch('${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/chats/create', {
+        const chatResponse = await fetch(getApiUrl('/api/chats/create'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -525,58 +526,6 @@ function Sidebar({ activeView, activeChat, onChatSelect, onStartPersonalChat, se
 
   const renderAnnouncements = () => {
     // Load announcements from state
-    const [announcements, setAnnouncements] = useState([]);
-    const [announcementText, setAnnouncementText] = useState('');
-    const [isPosting, setIsPosting] = useState(false);
-
-    useEffect(() => {
-      loadAnnouncements();
-    }, []);
-
-    const loadAnnouncements = async () => {
-      try {
-        const token = localStorage.getItem('lpuLiveToken');
-        const response = await fetch('${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/announcements', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          setAnnouncements(data);
-        }
-      } catch (error) {
-        console.error('Error loading announcements:', error);
-      }
-    };
-
-    const handlePostAnnouncement = async () => {
-      if (!announcementText.trim()) return;
-      
-      setIsPosting(true);
-      try {
-        const token = localStorage.getItem('lpuLiveToken');
-        const response = await fetch('${import.meta.env.PROD ? '' : 'http://localhost:5000'}/api/announcements', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ text: announcementText })
-        });
-        
-        if (response.ok) {
-          setAnnouncementText('');
-          loadAnnouncements();
-        }
-      } catch (error) {
-        console.error('Error posting announcement:', error);
-      } finally {
-        setIsPosting(false);
-      }
-    };
-
     return (
       <div className="sidebar-content">
         {currentUser.isAdmin && (
