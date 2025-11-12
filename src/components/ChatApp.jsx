@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Header from './Header'
 import Sidebar from './Sidebar'
 import ChatWindow from './ChatWindow'
+import Footer from './Footer'
 import './ChatApp.css'
 
 function ChatApp({ user, onLogout, theme, toggleTheme }) {
@@ -65,6 +66,8 @@ function ChatApp({ user, onLogout, theme, toggleTheme }) {
           showSidebar={showSidebar}
         />
       </div>
+      
+      <Footer />
     </div>
   )
 }
