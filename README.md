@@ -1,5 +1,7 @@
 # LPU Live - Real-Time Chat Application
 
+**Status**: 🟢 Active | **Version**: 2.0 | **Last Updated**: November 12, 2025
+
 ## 🎓 Overview
 LPU Live is a university-based real-time chat platform that uses **Registration Numbers** instead of phone numbers for identification.
 
