@@ -111,7 +111,7 @@ function Login({ onLogin }) {
             <input
               id="password"
               type="password"
-              placeholder="Enter your password"
+              placeholder="password is your reg number"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
