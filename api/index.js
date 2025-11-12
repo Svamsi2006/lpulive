@@ -443,12 +443,21 @@ app.post('/api/groups/create', authenticateToken, async (req, res) => {
 // Get university groups
 app.get('/api/groups/university', authenticateToken, async (req, res) => {
   try {
+    const username = req.user.username;
     const { db } = await connectToDatabase();
     const universityGroups = db.collection('university_groups');
 
-    const groups = await universityGroups.find({})
+    // Only return groups where the user is a member OR is the creator
+    const groups = await universityGroups.find({
+      $or: [
+        { members: username },
+        { creator: username }
+      ]
+    })
       .sort({ createdAt: -1 })
       .toArray();
+
+    console.log(`📋 User ${username} has access to ${groups.length} university groups`);
 
     res.json(groups);
 
